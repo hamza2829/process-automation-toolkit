@@ -11,7 +11,7 @@ dependencies = ["fastapi>=0.115,<1", "uvicorn>=0.34,<1", "sqlalchemy>=2.0,<3", "
 
 [project.optional-dependencies]
 test = ["pytest>=8,<9", "pytest-cov>=6,<8", "ruff>=0.14,<1"]
-ci = ["playwright==1.56.0", "pymupdf>=1.26,<2"]
+ci = ["playwright==1.56.0", "pymupdf>=1.26,<2", "pillow>=11,<13"]
 
 [project.scripts]
 process-toolkit = "process_automation.cli:main"

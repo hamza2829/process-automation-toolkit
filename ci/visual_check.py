@@ -2,14 +2,14 @@
 import json
 from pathlib import Path
 
-import fitz
+import pymupdf
 from openpyxl import load_workbook
 from PIL import Image, ImageDraw
 
 root = Path("artifacts")
 previews = root / "previews"
 previews.mkdir(exist_ok=True)
-document = fitz.open(previews / "weekly-report.pdf")
+document = pymupdf.open(previews / "weekly-report.pdf")
 book = load_workbook(root / "weekly-report.xlsx")
 all_text = "\n".join(page.get_text() for page in document)
 for sheet in book:
@@ -19,11 +19,11 @@ assert "#REF!" not in all_text and "#VALUE!" not in all_text
 tiles = []
 for index, page in enumerate(document):
     path = previews / f"weekly-{index + 1:02}.png"
-    page.get_pixmap(matrix=fitz.Matrix(1.2, 1.2)).save(path)
+    page.get_pixmap(matrix=pymupdf.Matrix(1.2, 1.2)).save(path)
     for block in page.get_text("dict")["blocks"]:
         for line in block.get("lines", []):
             for span in line["spans"]:
-                box = fitz.Rect(span["bbox"])
+                box = pymupdf.Rect(span["bbox"])
                 assert box.x0 >= -1 and box.y0 >= -1 and box.x1 <= page.rect.width + 1 and box.y1 <= page.rect.height + 1, span["text"]
     thumbnail = Image.open(path).convert("RGB")
     thumbnail.thumbnail((700, 500))
