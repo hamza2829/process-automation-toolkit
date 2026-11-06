@@ -77,7 +77,9 @@ def validate_card(payload):
             and attachment["contentType"] == "application/vnd.microsoft.card.adaptive"
             and content["type"] == "AdaptiveCard" and content["version"] == "1.2"
             and content["body"][0]["type"] == "TextBlock" and bool(content["body"][0]["text"])
-            and content["body"][1]["type"] == "FactSet" and len(content["body"][1]["facts"]) == 7)
+            and content["body"][1]["type"] == "FactSet" and len(content["body"][1]["facts"]) == 7
+            and all(set(fact) == {"title", "value"} and isinstance(fact["title"], str) and isinstance(fact["value"], str)
+                for fact in content["body"][1]["facts"]))
     except (KeyError, IndexError, TypeError):
         return False
 

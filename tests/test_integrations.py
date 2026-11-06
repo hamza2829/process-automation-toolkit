@@ -118,6 +118,9 @@ def test_webhook_rejects_invalid_payload_and_card_validation(lab, payload):
     bad = deepcopy(good)
     bad["attachments"][0]["content"]["version"] = "9.0"
     assert not validate_card(bad)
+    bad = deepcopy(good)
+    bad["attachments"][0]["content"]["body"][1]["facts"][0] = {"title": "Request", "value": []}
+    assert not validate_card(bad)
     assert not validate_card({"attachments": []})
     assert not validate_card(None)
 

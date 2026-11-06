@@ -115,7 +115,7 @@ def test_formula_text_is_neutralized(value):
 def test_cli_report_import_remind_deliver(lab, payload, tmp_path, monkeypatch, capsys):
     monkeypatch.setattr(cli, "configured_store", lambda: lab.store)
     monkeypatch.setattr(cli, "configured_dispatcher", lambda store: lab.dispatcher)
-    monkeypatch.setattr(cli, "Service", lambda store: lab.service)
+    monkeypatch.setattr(cli, "Service", lambda store, clock: lab.service)
     path = tmp_path / "new.xlsx"
     make_import(path, payload, [payload, {**payload, "quantity": -1}])
     report = tmp_path / "rows.json"

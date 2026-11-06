@@ -154,3 +154,14 @@ def test_timezone_normalization_and_naive_rejection(lab, payload):
         stamp(lab.clock().replace(tzinfo=None))
     with pytest.raises(ProcessError):
         lab.service.deadline(lab.clock())
+
+
+def test_configured_clock_is_explicit_and_requires_timezone(monkeypatch, lab):
+    from process_automation.domain import configured_clock, utcnow
+    monkeypatch.delenv("LAB_NOW", raising=False)
+    assert configured_clock() is utcnow
+    monkeypatch.setenv("LAB_NOW", "2026-11-02T11:00:00+02:00")
+    assert configured_clock()() == lab.clock()
+    monkeypatch.setenv("LAB_NOW", "2026-11-02T09:00:00")
+    with pytest.raises(ValueError, match="timezone"):
+        configured_clock()
