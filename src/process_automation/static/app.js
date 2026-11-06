@@ -10,6 +10,8 @@ async function api(path, method = 'GET', body) {
   return data;
 }
 function text(tag, value, className) { const element = document.createElement(tag); element.textContent = value; if (className) element.className = className; return element; }
+function label(value) { const words = value.replaceAll('_', ' '); return words.charAt(0).toUpperCase() + words.slice(1); }
+function dateLabel(value) { return new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'UTC' }).format(new Date(value)); }
 async function safe(action) { try { await action(); } catch (error) { show(error.message, true); } }
 function action(container, label, callback, className = 'secondary') {
   const button = text('button', label, className); button.type = 'button';
@@ -19,7 +21,7 @@ async function loadHistory(id) {
   const rows = await api(`/api/requests/${id}/history`);
   const table = document.createElement('table');
   const head = document.createElement('tr'); ['Time (UTC)', 'Actor', 'Change', 'Status', 'Comment'].forEach(value => head.append(text('th', value))); table.append(head);
-  rows.forEach(row => { const tr = document.createElement('tr'); [row.created_at, row.actor, row.kind, `${row.from_status || 'created'} > ${row.to_status}`, row.comment].forEach(value => tr.append(text('td', value))); table.append(tr); });
+  rows.forEach(row => { const tr = document.createElement('tr'); [dateLabel(row.created_at), row.actor, label(row.kind), row.from_status ? `${label(row.from_status)} > ${label(row.to_status)}` : label(row.to_status), row.comment].forEach(value => tr.append(text('td', value))); table.append(tr); });
   $('history').replaceChildren(table);
 }
 async function change(row, status) {
@@ -45,7 +47,7 @@ async function load() {
     const article = text('article', '', 'request'); article.dataset.requestId = row.id;
     const heading = text('h3', row.title); heading.append(text('span', row.status.replace('_', ' '), `badge ${row.status}`)); article.append(heading);
     article.append(text('p', `${row.department} / ${row.category} / ${row.requester} / quantity ${row.quantity} / EUR ${row.cost_eur}`));
-    article.append(text('p', row.justification)); article.append(text('p', `Approval deadline: ${row.approval_deadline} / version ${row.version}`));
+    article.append(text('p', row.justification)); article.append(text('p', `Approval deadline: ${dateLabel(row.approval_deadline)} UTC`));
     const buttons = text('div', '', 'actions'); action(buttons, 'History', () => loadHistory(row.id));
     if (role === 'approver' && row.status === 'new') action(buttons, 'Start review', () => change(row, 'in_review'));
     if (role === 'approver' && row.status === 'in_review') { action(buttons, 'Approve', () => change(row, 'approved'), 'approve'); action(buttons, 'Reject', () => change(row, 'rejected'), 'reject'); }

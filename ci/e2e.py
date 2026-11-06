@@ -89,6 +89,7 @@ try:
             page.locator("#title").fill("Synthetic browser tool")
             page.locator("#justification").fill("Synthetic browser acceptance check for the lab.")
             page.locator("#deadline").fill("2026-11-03T09:00")
+            page.screenshot(path=str(root / "request-form.png"), full_page=True)
             page.get_by_role("button", name="Submit request").click()
             page.get_by_role("status").filter(has_text="Request created").wait_for()
             page.select_option("#identity", "nolan")

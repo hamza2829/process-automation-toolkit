@@ -95,11 +95,18 @@ On every push CI runs Ruff and pytest with a line coverage gate, then starts all
 
 <!-- CI_METRICS_START -->
 | Metric | Measured in CI |
-| --- | --- |
-| Tests and line coverage | Awaiting a completed CI run |
+| --- | ---: |
+| pytest cases | 79 |
+| Line coverage | 98.81% (665 / 673 lines) |
+| Failures / skipped | 0 / 0 |
+| Synced Graph mock items in the end-to-end run | 6 |
+| Captured Adaptive Card messages | 12 |
+| Same-day reminder events on first / repeated check | 3 / 0 |
 <!-- CI_METRICS_END -->
 
-The workflow enforces at least 40 pytest cases and 85 percent line coverage. The final table is populated only from actual JUnit and coverage XML. Artifacts include the Excel report and input, row error report, app and mock logs, synthetic SQLite files, browser screenshots, native workbook PDF and page previews, coverage reports and end-to-end proof. The artifact is named `process-automation-results` and is retained for 14 days.
+Measured on 6 November 2026 in [CI run 42205628650](https://github.com/hamza2829/process-automation-toolkit/actions/runs/42205628650), commit `eb2a1ef1ce52404cfe6a89bb59876dde061a6a96`. The actual [measurement JSON](docs/ci-measurements.json), [end-to-end proof](docs/e2e-proof.json) and [workbook rendering proof](docs/visual-proof.json) are preserved from that run. All four workbook sheets and the department chart rendered, and their page previews were visually inspected. The browser approval scenario recorded zero JavaScript or console errors.
+
+The workflow enforces at least 40 pytest cases and 85 percent line coverage. The table comes from actual JUnit, coverage XML and end-to-end assertions. Artifacts include the Excel report and input, row error report, app and mock logs, synthetic SQLite files, browser screenshots, native workbook PDF and page previews, coverage reports and end-to-end proof. The artifact is named `process-automation-results` and is retained for 14 days.
 
 ## Limitations
 

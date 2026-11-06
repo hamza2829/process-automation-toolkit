@@ -1,0 +1,12 @@
+{
+  "tests": 79,
+  "failures": 0,
+  "skipped": 0,
+  "line_coverage_percent": 98.81,
+  "covered_lines": 665,
+  "measured_lines": 673,
+  "e2e_graph_items": 6,
+  "e2e_notifications": 12,
+  "commit": "eb2a1ef1ce52404cfe6a89bb59876dde061a6a96",
+  "run_url": "https://github.com/hamza2829/process-automation-toolkit/actions/runs/42205628650"
+}
