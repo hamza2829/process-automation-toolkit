@@ -1,0 +1,54 @@
+name: Process automation CI
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+defaults:
+  run:
+    shell: bash
+jobs:
+  process-lab:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install tools only on the runner
+        run: |
+          mkdir -p artifacts/previews
+          python -m pip install -e '.[test,ci]' 2>&1 | tee artifacts/install.log
+          python -m pip freeze > artifacts/dependencies.txt
+      - name: Ruff
+        run: ruff check src tests ci 2>&1 | tee artifacts/ruff.log
+      - name: Tests and minimum 85 percent line coverage
+        run: |
+          pytest --cov=process_automation --cov-fail-under=85 --cov-report=term-missing --cov-report=xml:artifacts/coverage.xml --cov-report=json:artifacts/coverage.json --cov-report=html:artifacts/coverage-html --junitxml=artifacts/tests.xml 2>&1 | tee artifacts/pytest.log
+      - name: Start three servers and run HTTP, browser and CLI scenario
+        run: |
+          python -m playwright install --only-shell chromium
+          python ci/e2e.py 2>&1 | tee artifacts/e2e.log
+      - name: Render weekly workbook on the runner
+        timeout-minutes: 10
+        run: |
+          if [[ -f /etc/apt/apt-mirrors.txt ]]; then
+            printf 'https://archive.ubuntu.com/ubuntu\n' | sudo tee /etc/apt/apt-mirrors.txt
+          fi
+          if [[ -f /etc/apt/apt-mirrors-security.txt ]]; then
+            printf 'https://security.ubuntu.com/ubuntu\n' | sudo tee /etc/apt/apt-mirrors-security.txt
+          fi
+          sudo apt-get -o Acquire::Retries=2 -o Acquire::https::Timeout=30 update 2>&1 | tee artifacts/apt-update.log
+          sudo env DEBIAN_FRONTEND=noninteractive apt-get -o Acquire::Retries=2 -o Acquire::https::Timeout=30 install -y --no-install-recommends libreoffice-calc 2>&1 | tee artifacts/libreoffice-install.log
+          libreoffice -env:UserInstallation=file:///tmp/process-lab-render --headless --convert-to pdf --outdir artifacts/previews artifacts/weekly-report.xlsx 2>&1 | tee artifacts/workbook-render.log
+          python ci/visual_check.py
+      - name: Measure real test and coverage reports
+        run: python ci/measure.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: process-automation-results
+          path: artifacts/
+          retention-days: 14
